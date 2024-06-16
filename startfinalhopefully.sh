@@ -24,7 +24,7 @@ install_package gnupg
 # Install Java
 echo "Installing the latest version of Java..."
 sudo apt-get update
-sudo apt-get install -y openjdk-17-jdk
+sudo apt-get install -y openjdk-22-jdk
 
 # Verify Java installation
 if ! command -v java &> /dev/null
