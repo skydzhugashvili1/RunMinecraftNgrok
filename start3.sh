@@ -7,6 +7,20 @@ then
     exit 1
 fi
 
+# Install ngrok
+echo "Installing ngrok..."
+curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+    && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list \
+    && sudo apt update \
+    && sudo apt install -y ngrok
+
+# Check if ngrok was installed successfully
+if ! command -v ngrok &> /dev/null
+then
+    echo "ngrok could not be installed, please check your network connection and try again."
+    exit 1
+fi
+
 # Define the URL for the version manifest
 VERSION_MANIFEST_URL="https://launchermeta.mojang.com/mc/game/version_manifest.json"
 
@@ -34,14 +48,14 @@ NGROK_AUTHTOKEN="2ghdAuc1i91WrLpMtEcqoNWSqr5_7157CeKfY1F2W694NNL17"
 
 # Start ngrok TCP tunnel for port 25565
 echo "Starting ngrok TCP tunnel on port 25565..."
-./ngrok authtoken $NGROK_AUTHTOKEN
-./ngrok tcp 25565 &
+ngrok authtoken $NGROK_AUTHTOKEN
+ngrok tcp 25565 &
 
 # Wait for ngrok to initialize and capture the public URL
 sleep 10
 
 # Extract and display ngrok URL
-NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url' | sed 's/tcp:\/\///')
+NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[] | select(.proto == "tcp") | .public_url' | sed 's/tcp:\/\///')
 echo "ngrok is running at: $NGROK_URL"
 
 # Start Minecraft server
