@@ -16,13 +16,24 @@ install_package() {
     fi
 }
 
-# Ensure curl is installed
+# Install required packages
 install_package curl
-
-# Ensure jq is installed
 install_package jq
+install_package gnupg
 
-# Install ngrok using apt
+# Install Java
+echo "Installing the latest version of Java..."
+sudo apt-get update
+sudo apt-get install -y openjdk-17-jdk
+
+# Verify Java installation
+if ! command -v java &> /dev/null
+then
+    echo "Java could not be installed. Exiting..."
+    exit 1
+fi
+
+# Install ngrok
 echo "Installing ngrok..."
 curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
     && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list \
