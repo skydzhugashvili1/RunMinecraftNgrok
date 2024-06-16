@@ -29,7 +29,7 @@ sudo apt-get update
 sudo apt-get install -y software-properties-common
 sudo add-apt-repository ppa:linuxuprising/java -y
 sudo apt-get update
-sudo apt-get install -y oracle-java21-installer --install-recommends
+sudo apt-get install -y openjdk-21-jdk --install-recommends
 
 # Verify Java installation
 if ! command -v java &> /dev/null
@@ -91,6 +91,7 @@ sleep 10
 # Extract and display ngrok URL
 NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[] | select(.proto == "tcp") | .public_url' | sed 's/tcp:\/\///')
 echo "ngrok is running at: $NGROK_URL"
+sleep 10
 
 # Start Minecraft server
 echo "Starting Minecraft server..."
