@@ -16,15 +16,20 @@ install_package() {
     fi
 }
 
-# Install required packages
+# Ensure curl and jq are installed
 install_package curl
 install_package jq
+
+# Ensure gnupg is installed for adding repositories
 install_package gnupg
 
-# Install Java
+# Install the latest Java (Java 21 or newer)
 echo "Installing the latest version of Java..."
 sudo apt-get update
-sudo apt-get install -y openjdk-21-jdk
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository ppa:linuxuprising/java -y
+sudo apt-get update
+sudo apt-get install -y oracle-java21-installer --install-recommends
 
 # Verify Java installation
 if ! command -v java &> /dev/null
@@ -67,6 +72,10 @@ if [ $? -ne 0 ]; then
     echo "Failed to download the Minecraft server JAR."
     exit 1
 fi
+
+# Create eula.txt file with eula=true
+echo "Creating eula.txt file with eula=true..."
+echo "eula=true" > eula.txt
 
 # Set ngrok authtoken
 NGROK_AUTHTOKEN="2ghdAuc1i91WrLpMtEcqoNWSqr5_7157CeKfY1F2W694NNL17"
