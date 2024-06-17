@@ -16,10 +16,16 @@ install_package() {
     fi
 }
 
-# Ensure curl, jq, and npm are installed
+# Ensure curl and jq are installed
 install_package curl
 install_package jq
-install_package npm
+
+# Install Node.js and npm using apt
+install_package nodejs npm
+
+# Install Telebit CLI globally using npm
+echo "Installing Telebit CLI..."
+sudo npm install -g telebit
 
 # Ensure ssh is installed for Serveo tunneling (not needed for Telebit)
 # install_package openssh-client
@@ -33,10 +39,6 @@ if ! command -v java &> /dev/null; then
     echo "Java could not be installed. Exiting..."
     exit 1
 fi
-
-# Install Telebit CLI globally using npm
-echo "Installing Telebit CLI..."
-npm install -g telebit
 
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
