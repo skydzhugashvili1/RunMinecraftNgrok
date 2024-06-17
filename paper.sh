@@ -23,9 +23,9 @@ install_package jq
 # Install Node.js and npm using apt
 install_package nodejs npm
 
-# Install Python 3, pip, and other necessary packages
-echo "Installing Python 3, pip, and other dependencies..."
-install_package python3 python3-pip
+# Install localtunnel via npm
+echo "Installing localtunnel..."
+sudo npm install -g localtunnel
 
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
@@ -36,10 +36,6 @@ if ! command -v java &> /dev/null; then
     echo "Java could not be installed. Exiting..."
     exit 1
 fi
-
-# Install Pagekite manually using pip
-echo "Installing Pagekite..."
-sudo pip3 install pagekite.py
 
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
@@ -94,11 +90,9 @@ else
     exit 1
 fi
 
-# Start Pagekite tunnel (replace yourkitepage with your Pagekite subdomain)
-echo "Starting Pagekite tunnel..."
-sudo pagekite.py 25565 yourkitepage.pagekite.me
-
-# Pagekite will provide a public URL automatically
+# Start localtunnel for port 25565
+echo "Starting localtunnel for port 25565..."
+lt --port 25565 &
 
 # Keep the script running to prevent the Minecraft server and tunnel from stopping
 wait $MC_SERVER_PID
