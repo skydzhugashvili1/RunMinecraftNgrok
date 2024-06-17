@@ -16,16 +16,6 @@ install_package() {
     fi
 }
 
-# Function to download and install Crowbar
-install_crowbar() {
-    echo "Downloading Crowbar from GitHub..."
-    git clone https://github.com/q3k/crowbar.git
-    cd crowbar
-    echo "Installing Crowbar..."
-    sudo python3 setup.py install
-    cd ..
-}
-
 # Function to download the latest Paper server JAR
 download_paper_jar() {
     PAPER_API_BASE="https://papermc.io/api/v2/projects/paper"
@@ -53,15 +43,11 @@ setup_minecraft_server() {
     sleep 30
 }
 
-# Function to setup SSH keys and OpenSSH server
-setup_ssh() {
-    echo "Setting up SSH..."
+# Function to setup SSH keys and Crowbar tunnel
+setup_ssh_and_crowbar() {
+    echo "Setting up SSH and Crowbar tunnel..."
 
-    # Create ~/.ssh directory if it doesn't exist
-    mkdir -p ~/.ssh
-    chmod 700 ~/.ssh
-
-    # Generate SSH key pair if not already generated
+    # Ensure SSH keys exist and are generated
     if [ ! -f ~/.ssh/id_rsa ]; then
         echo "Generating SSH key pair..."
         ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
@@ -69,28 +55,31 @@ setup_ssh() {
         echo "SSH key pair already exists."
     fi
 
-    # Install OpenSSH server if not already installed
-    install_package openssh-server
-
-    # Restart SSH service to apply changes
-    sudo systemctl restart ssh
-
     # Replace 'your-ssh-server' and 'your-ssh-username' with actual SSH server details
-    SSH_SERVER="localhost"
-    SSH_USERNAME="root"
+    SSH_SERVER="your-ssh-server"
+    SSH_USERNAME="your-ssh-username"
+
+    # Create ~/.ssh directory if it doesn't exist
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
 
     # Copy SSH public key to remote server
     echo "Copying SSH public key to $SSH_SERVER..."
-    cat ~/.ssh/id_rsa.pub | ssh $SSH_USERNAME@$SSH_SERVER "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+    sshpass -p "your-ssh-password" ssh-copy-id -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_SERVER
 
     if [ $? -ne 0 ]; then
         echo "Failed to copy SSH public key. Exiting..."
         exit 1
     fi
-}
 
-# Function to setup and start Crowbar tunnel
-setup_and_start_crowbar() {
+    # Install Crowbar
+    install_package git python3
+    git clone https://github.com/q3k/crowbar.git
+    cd crowbar
+    sudo python3 setup.py install
+    cd ..
+
+    # Start Crowbar tunnel
     echo "Starting Crowbar tunnel to SSH server $SSH_SERVER..."
     crowbar -r ssh://$SSH_USERNAME@$SSH_SERVER:22 -L 25565:localhost:25565 > crowbar.log &
 
@@ -115,9 +104,7 @@ echo "=== Minecraft Server Setup with Crowbar ==="
 install_package curl
 install_package jq
 install_package openjdk-11-jre-headless  # OpenJDK 11 for Java runtime
-
-# Install Crowbar
-install_crowbar
+install_package sshpass  # Utility to provide password for ssh
 
 # Download latest Paper server JAR
 download_paper_jar
@@ -125,11 +112,8 @@ download_paper_jar
 # Setup and start Minecraft server
 setup_minecraft_server
 
-# Setup SSH keys and OpenSSH server
-setup_ssh
-
-# Setup and start Crowbar tunnel, and retrieve tunnel URL
-setup_and_start_crowbar
+# Setup SSH keys and Crowbar tunnel
+setup_ssh_and_crowbar
 
 # Keep script running to maintain Minecraft server and Crowbar tunnel
 echo "Script is running. Press Ctrl+C to stop."
