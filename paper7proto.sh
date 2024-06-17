@@ -16,12 +16,13 @@ install_package() {
     fi
 }
 
-# Ensure curl and jq are installed
+# Ensure curl, jq, and npm are installed
 install_package curl
 install_package jq
+install_package npm
 
-# Ensure ssh is installed for Serveo tunneling
-install_package openssh-client
+# Ensure ssh is installed for Serveo tunneling (not needed for Telebit)
+# install_package openssh-client
 
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
@@ -32,6 +33,10 @@ if ! command -v java &> /dev/null; then
     echo "Java could not be installed. Exiting..."
     exit 1
 fi
+
+# Install Telebit CLI globally using npm
+echo "Installing Telebit CLI..."
+npm install -g telebit
 
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
@@ -86,27 +91,11 @@ else
     exit 1
 fi
 
-# Wait an additional 15 seconds before starting the Forward.dev tunnel
-echo "Waiting 15 seconds before starting the Forward.dev tunnel..."
-sleep 15
+# Start Telebit tunnel
+echo "Starting Telebit tunnel..."
+telebit tcp 25565
 
-# Start the Forward.dev tunnel
-echo "Starting Forward.dev tunnel..."
-forward 25565 &
-
-# Wait a bit for the Forward.dev tunnel to initialize
-sleep 5
-
-# Get the Forward.dev public URL
-FORWARD_URL=$(curl -s https://forward.dev/status | grep -Eo 'https://forward\.dev/[^ ]*')
-
-# Check if the Forward.dev URL was retrieved successfully
-if [ -z "$FORWARD_URL" ]; then
-    echo "Failed to retrieve the Forward.dev public URL."
-    exit 1
-fi
-
-echo "Forward.dev is running at: $FORWARD_URL"
+# Telebit will provide a public URL automatically
 
 # Keep the script running to prevent the Minecraft server and tunnel from stopping
 wait $MC_SERVER_PID
