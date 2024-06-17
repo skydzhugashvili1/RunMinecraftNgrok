@@ -55,6 +55,19 @@ install_openjdk_17() {
     java -version
 }
 
+# Function to install cloudflared
+install_cloudflared() {
+    echo "Installing cloudflared..."
+    # Add Cloudflare repository and install cloudflared
+    curl -L https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add -
+    echo "deb https://pkg.cloudflareclient.com/ /" | sudo tee /etc/apt/sources.list.d/cloudflared.list
+    sudo apt-get update
+    sudo apt-get install -y cloudflared
+
+    # Verify installation
+    cloudflared --version
+}
+
 # Function to start Cloudflared tunnel with API token and random subdomain
 start_cloudflared_tunnel() {
     echo "Starting Cloudflared tunnel..."
@@ -80,6 +93,9 @@ echo "=== Minecraft Server Setup with Cloudflared ==="
 # Ensure necessary packages are installed
 install_package curl
 install_package jq
+
+# Install cloudflared
+install_cloudflared
 
 # Download latest Paper server JAR
 download_paper_jar
