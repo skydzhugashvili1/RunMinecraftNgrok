@@ -71,9 +71,6 @@ install_openjdk_17() {
 run_playit_setup() {
     echo "Running Playit.GG setup..."
     playit setup
-
-    echo "Waiting for 60 seconds..."
-    sleep 60
 }
 
 # Main script flow
