@@ -20,8 +20,9 @@ install_package() {
 install_package curl
 install_package jq
 
-# Install Node.js and npm using apt
-install_package nodejs npm
+# Install Node.js and npm using Nodesource repository
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
 # Install Telebit CLI globally using npm
 echo "Installing Telebit CLI..."
