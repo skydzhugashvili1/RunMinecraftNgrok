@@ -23,6 +23,10 @@ install_package jq
 # Install Node.js and npm using apt
 install_package nodejs npm
 
+# Install Python 3, pip, and other necessary packages
+echo "Installing Python 3, pip, and other dependencies..."
+install_package python3 python3-pip
+
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
 install_package openjdk-21-jdk
@@ -33,9 +37,9 @@ if ! command -v java &> /dev/null; then
     exit 1
 fi
 
-# Install Pagekite using apt
+# Install Pagekite manually using pip
 echo "Installing Pagekite..."
-sudo apt-get install -y pagekite
+sudo pip3 install pagekite.py
 
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
