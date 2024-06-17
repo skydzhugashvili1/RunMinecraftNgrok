@@ -33,6 +33,10 @@ if ! command -v java &> /dev/null; then
     exit 1
 fi
 
+# Install sshuttle
+echo "Installing sshuttle..."
+install_package sshuttle
+
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
 
@@ -86,8 +90,8 @@ else
     exit 1
 fi
 
-# Start SSH tunneling with sshuttle (replace your-ssh-server with your SSH server address)
+# Start SSH tunneling with sshuttle (replace user and your-ssh-server with your SSH username and server address)
 echo "Starting SSH tunnel with sshuttle..."
 sshuttle -r user@your-ssh-server 0/0 -vv
 
-# Replace user@your-ssh-server with your
+# Replace user@your-ssh-server with your SSH username and server address.
