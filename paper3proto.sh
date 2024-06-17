@@ -68,6 +68,24 @@ fi
 echo "Creating eula.txt file with eula=true..."
 echo "eula=true" > eula.txt
 
+# Start Paper Minecraft server in the background
+echo "Starting Paper Minecraft server..."
+java -Xmx1024M -Xms1024M -jar $PAPER_SERVER_JAR nogui &
+
+# Get the process ID of the Minecraft server
+MC_SERVER_PID=$!
+
+# Wait a bit for the Minecraft server to initialize
+sleep 20
+
+# Check if the Minecraft server is running
+if ps -p $MC_SERVER_PID > /dev/null; then
+    echo "Minecraft server is running with PID $MC_SERVER_PID"
+else
+    echo "Minecraft server failed to start. Exiting..."
+    exit 1
+fi
+
 # Start the Serveo.net tunnel
 echo "Starting Serveo.net tunnel..."
 ssh -R 25565:localhost:25565 serveo.net -o StrictHostKeyChecking=no -o ServerAliveInterval=60 &
@@ -86,6 +104,5 @@ fi
 
 echo "Serveo.net is running at: $SERVEO_URL"
 
-# Start Paper Minecraft server
-echo "Starting Paper Minecraft server..."
-java -Xmx1024M -Xms1024M -jar $PAPER_SERVER_JAR nogui
+# Keep the script running to prevent the Minecraft server and tunnel from stopping
+wait $MC_SERVER_PID
