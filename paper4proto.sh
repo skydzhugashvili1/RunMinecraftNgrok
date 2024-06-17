@@ -75,7 +75,7 @@ java -Xmx1024M -Xms1024M -jar $PAPER_SERVER_JAR nogui &
 # Get the process ID of the Minecraft server
 MC_SERVER_PID=$!
 
-# Wait a bit for the Minecraft server to initialize
+# Wait for the Minecraft server to initialize
 sleep 20
 
 # Check if the Minecraft server is running
@@ -85,6 +85,10 @@ else
     echo "Minecraft server failed to start. Exiting..."
     exit 1
 fi
+
+# Wait an additional 15 seconds before starting the tunnel
+echo "Waiting 15 seconds before starting the Serveo.net tunnel..."
+sleep 15
 
 # Start the Serveo.net tunnel
 echo "Starting Serveo.net tunnel..."
