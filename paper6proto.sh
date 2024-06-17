@@ -86,27 +86,27 @@ else
     exit 1
 fi
 
-# Wait an additional 15 seconds before starting the tunnel
-echo "Waiting 15 seconds before starting the Serveo.net tunnel..."
+# Wait an additional 15 seconds before starting the Forward.dev tunnel
+echo "Waiting 15 seconds before starting the Forward.dev tunnel..."
 sleep 15
 
-# Start the Serveo.net tunnel, dynamically assign a remote port
-echo "Starting Serveo.net tunnel..."
-# Capture the output to extract the assigned port
-TUNNEL_OUTPUT=$(ssh -R 0:localhost:25565 serveo.net -o StrictHostKeyChecking=no -o ServerAliveInterval=60 2>&1 &)
-# Extract the assigned port
-SERVEO_URL=$(echo "$TUNNEL_OUTPUT" | grep -Eo 'tcp://[^ ]*')
+# Start the Forward.dev tunnel
+echo "Starting Forward.dev tunnel..."
+forward 25565 &
 
-# Wait a bit for the SSH tunnel to initialize
+# Wait a bit for the Forward.dev tunnel to initialize
 sleep 5
 
-# Check if the Serveo.net URL was retrieved successfully
-if [ -z "$SERVEO_URL" ]; then
-    echo "Failed to retrieve the Serveo.net public URL."
+# Get the Forward.dev public URL
+FORWARD_URL=$(curl -s https://forward.dev/status | grep -Eo 'https://forward\.dev/[^ ]*')
+
+# Check if the Forward.dev URL was retrieved successfully
+if [ -z "$FORWARD_URL" ]; then
+    echo "Failed to retrieve the Forward.dev public URL."
     exit 1
 fi
 
-echo "Serveo.net is running at: $SERVEO_URL"
+echo "Forward.dev is running at: $FORWARD_URL"
 
 # Keep the script running to prevent the Minecraft server and tunnel from stopping
 wait $MC_SERVER_PID
