@@ -36,15 +36,10 @@ setup_minecraft_server() {
     sleep 30  # Wait for Minecraft server to start
 }
 
-# Function to download the latest Paper server JAR
+# Function to download the specific Paper server JAR
 download_paper_jar() {
-    PAPER_API_BASE="https://papermc.io/api/v2/projects/paper"
-    MINECRAFT_VERSION="1.20.4"
-
-    echo "Fetching latest Paper server version..."
-    LATEST_BUILD=$(curl -s "$PAPER_API_BASE/versions/$MINECRAFT_VERSION" | jq -r '.builds[-1]')
-    PAPER_SERVER_JAR="paper-$MINECRAFT_VERSION-$LATEST_BUILD.jar"
-    PAPER_DOWNLOAD_URL="$PAPER_API_BASE/versions/$MINECRAFT_VERSION/builds/$LATEST_BUILD/downloads/$PAPER_SERVER_JAR"
+    PAPER_SERVER_JAR="paper-1.20.4.jar"
+    PAPER_DOWNLOAD_URL="https://papermc.io/api/v2/projects/paper/versions/1.20.4/builds/latest/downloads/$PAPER_SERVER_JAR"
 
     echo "Downloading Paper server JAR from $PAPER_DOWNLOAD_URL..."
     curl -o $PAPER_SERVER_JAR $PAPER_DOWNLOAD_URL
@@ -71,6 +66,9 @@ install_openjdk_17() {
 run_playit_setup() {
     echo "Running Playit.GG setup..."
     playit setup
+
+    echo "Waiting for 60 seconds..."
+    sleep 60
 }
 
 # Main script flow
@@ -83,7 +81,7 @@ install_package jq
 # Install Playit.GG
 install_playit_gg
 
-# Download latest Paper server JAR
+# Download specific Paper server JAR
 download_paper_jar
 
 # Install OpenJDK 17
