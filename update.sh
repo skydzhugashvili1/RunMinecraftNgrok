@@ -53,11 +53,15 @@ setup_minecraft_server() {
     sleep 30
 }
 
-# Function to setup and start Crowbar tunnel
-setup_and_start_crowbar() {
-    echo "Setting up SSH for Crowbar tunneling..."
+# Function to setup SSH keys and OpenSSH server
+setup_ssh() {
+    echo "Setting up SSH..."
 
-    # Generate SSH key if not already generated
+    # Create ~/.ssh directory if it doesn't exist
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+
+    # Generate SSH key pair if not already generated
     if [ ! -f ~/.ssh/id_rsa ]; then
         echo "Generating SSH key pair..."
         ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
@@ -65,18 +69,28 @@ setup_and_start_crowbar() {
         echo "SSH key pair already exists."
     fi
 
-    # Replace 'your-ssh-server' and 'your-ssh-username' with actual SSH server details
-    SSH_SERVER="your-ssh-server"
-    SSH_USERNAME="your-ssh-username"
+    # Install OpenSSH server if not already installed
+    install_package openssh-server
 
+    # Restart SSH service to apply changes
+    sudo systemctl restart ssh
+
+    # Replace 'your-ssh-server' and 'your-ssh-username' with actual SSH server details
+    SSH_SERVER="localhost"
+    SSH_USERNAME="root"
+
+    # Copy SSH public key to remote server
     echo "Copying SSH public key to $SSH_SERVER..."
-    ssh-copy-id -i ~/.ssh/id_rsa.pub $SSH_USERNAME@$SSH_SERVER
+    cat ~/.ssh/id_rsa.pub | ssh $SSH_USERNAME@$SSH_SERVER "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 
     if [ $? -ne 0 ]; then
         echo "Failed to copy SSH public key. Exiting..."
         exit 1
     fi
+}
 
+# Function to setup and start Crowbar tunnel
+setup_and_start_crowbar() {
     echo "Starting Crowbar tunnel to SSH server $SSH_SERVER..."
     crowbar -r ssh://$SSH_USERNAME@$SSH_SERVER:22 -L 25565:localhost:25565 > crowbar.log &
 
@@ -110,6 +124,9 @@ download_paper_jar
 
 # Setup and start Minecraft server
 setup_minecraft_server
+
+# Setup SSH keys and OpenSSH server
+setup_ssh
 
 # Setup and start Crowbar tunnel, and retrieve tunnel URL
 setup_and_start_crowbar
