@@ -90,15 +90,15 @@ fi
 echo "Waiting 15 seconds before starting the Serveo.net tunnel..."
 sleep 15
 
-# Start the Serveo.net tunnel
+# Start the Serveo.net tunnel, dynamically assign a remote port
 echo "Starting Serveo.net tunnel..."
-ssh -R 25565:localhost:25565 serveo.net -o StrictHostKeyChecking=no -o ServerAliveInterval=60 &
+# Capture the output to extract the assigned port
+TUNNEL_OUTPUT=$(ssh -R 0:localhost:25565 serveo.net -o StrictHostKeyChecking=no -o ServerAliveInterval=60 2>&1 &)
+# Extract the assigned port
+SERVEO_URL=$(echo "$TUNNEL_OUTPUT" | grep -Eo 'tcp://[^ ]*')
 
 # Wait a bit for the SSH tunnel to initialize
 sleep 5
-
-# Get the Serveo.net public URL
-SERVEO_URL=$(curl -s -X POST https://serveo.net/status | grep -Eo 'tcp://[^ ]*')
 
 # Check if the Serveo.net URL was retrieved successfully
 if [ -z "$SERVEO_URL" ]; then
