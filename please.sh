@@ -20,12 +20,8 @@ install_package() {
 install_package curl
 install_package jq
 
-# Install Node.js and npm using apt
-install_package nodejs npm
-
-# Install localtunnel via npm
-echo "Installing localtunnel..."
-sudo npm install -g localtunnel
+# Install Node.js and npm using apt (if needed)
+# install_package nodejs npm
 
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
@@ -90,9 +86,8 @@ else
     exit 1
 fi
 
-# Start localtunnel for port 25565
-echo "Starting localtunnel for port 25565..."
-lt --port 25565 &
+# Start SSH tunneling with sshuttle (replace your-ssh-server with your SSH server address)
+echo "Starting SSH tunnel with sshuttle..."
+sshuttle -r user@your-ssh-server 0/0 -vv
 
-# Keep the script running to prevent the Minecraft server and tunnel from stopping
-wait $MC_SERVER_PID
+# Replace user@your-ssh-server with your
