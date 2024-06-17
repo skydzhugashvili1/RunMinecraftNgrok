@@ -20,8 +20,8 @@ install_package() {
 install_package curl
 install_package jq
 
-# Ensure gnupg is installed for adding repositories
-install_package gnupg
+# Ensure ssh is installed for Serveo tunneling
+install_package openssh-client
 
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
@@ -30,19 +30,6 @@ install_package openjdk-21-jdk
 # Verify Java installation
 if ! command -v java &> /dev/null; then
     echo "Java could not be installed. Exiting..."
-    exit 1
-fi
-
-# Install ngrok
-echo "Installing ngrok..."
-curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-    && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list \
-    && sudo apt update \
-    && sudo apt install -y ngrok
-
-# Check if ngrok was installed successfully
-if ! command -v ngrok &> /dev/null; then
-    echo "ngrok could not be installed, please check your network connection and try again."
     exit 1
 fi
 
@@ -81,21 +68,23 @@ fi
 echo "Creating eula.txt file with eula=true..."
 echo "eula=true" > eula.txt
 
-# Set ngrok authtoken
-NGROK_AUTHTOKEN="2ghdAuc1i91WrLpMtEcqoNWSqr5_7157CeKfY1F2W694NNL17"
+# Start the Serveo.net tunnel
+echo "Starting Serveo.net tunnel..."
+ssh -R 25565:localhost:25565 serveo.net -o StrictHostKeyChecking=no -o ServerAliveInterval=60 &
 
-# Start ngrok TCP tunnel for port 25565
-echo "Starting ngrok TCP tunnel on port 25565..."
-ngrok authtoken $NGROK_AUTHTOKEN
-ngrok tcp 25565 &
+# Wait a bit for the SSH tunnel to initialize
+sleep 5
 
-# Wait for ngrok to initialize and capture the public URL
-sleep 10
+# Get the Serveo.net public URL
+SERVEO_URL=$(curl -s -X POST https://serveo.net/status | grep -Eo 'tcp://[^ ]*')
 
-# Extract and display ngrok URL
-NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[] | select(.proto == "tcp") | .public_url' | sed 's/tcp:\/\///')
-echo "ngrok is running at: $NGROK_URL"
-sleep 10
+# Check if the Serveo.net URL was retrieved successfully
+if [ -z "$SERVEO_URL" ]; then
+    echo "Failed to retrieve the Serveo.net public URL."
+    exit 1
+fi
+
+echo "Serveo.net is running at: $SERVEO_URL"
 
 # Start Paper Minecraft server
 echo "Starting Paper Minecraft server..."
