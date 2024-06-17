@@ -20,16 +20,8 @@ install_package() {
 install_package curl
 install_package jq
 
-# Install Node.js and npm using Nodesource repository
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install Telebit CLI globally using npm
-echo "Installing Telebit CLI..."
-sudo npm install -g telebit
-
-# Ensure ssh is installed for Serveo tunneling (not needed for Telebit)
-# install_package openssh-client
+# Install Node.js and npm using apt
+install_package nodejs npm
 
 # Install the latest OpenJDK 21
 echo "Installing OpenJDK 21..."
@@ -40,6 +32,10 @@ if ! command -v java &> /dev/null; then
     echo "Java could not be installed. Exiting..."
     exit 1
 fi
+
+# Install Pagekite using apt
+echo "Installing Pagekite..."
+sudo apt-get install -y pagekite
 
 # Define the base URL for the Paper API
 PAPER_API_BASE="https://api.papermc.io/v2/projects/paper/versions"
@@ -83,8 +79,8 @@ java -Xmx1024M -Xms1024M -jar $PAPER_SERVER_JAR nogui &
 # Get the process ID of the Minecraft server
 MC_SERVER_PID=$!
 
-# Wait for the Minecraft server to initialize
-sleep 20
+# Wait for the Minecraft server to initialize (adjust as necessary)
+sleep 22
 
 # Check if the Minecraft server is running
 if ps -p $MC_SERVER_PID > /dev/null; then
@@ -94,11 +90,11 @@ else
     exit 1
 fi
 
-# Start Telebit tunnel
-echo "Starting Telebit tunnel..."
-telebit tcp 25565
+# Start Pagekite tunnel (replace yourkitepage with your Pagekite subdomain)
+echo "Starting Pagekite tunnel..."
+sudo pagekite.py 25565 yourkitepage.pagekite.me
 
-# Telebit will provide a public URL automatically
+# Pagekite will provide a public URL automatically
 
 # Keep the script running to prevent the Minecraft server and tunnel from stopping
 wait $MC_SERVER_PID
